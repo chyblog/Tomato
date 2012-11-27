@@ -1,27 +1,43 @@
 <resources>
 
     <string name="app_name">番茄工作</string>
-    <string name="menu_settings">Settings</string>
-    <string name="title_activity_main">番茄工作</string>
+
+    <!-- 提示信息 -->
+    <string name="task_name_hint">请输入工作内容</string>
+    <string name="error_notask">请输入工作内容！</string>
+
+    <!-- 静态显示信息 -->
     <string name="init_time">00:00</string>
-    <string name="default_work_time">25</string>
-    <string name="default_rest_time">5</string>
     <string name="init_task">现在就开始一个工作吧</string>
     <string name="rest_tip">休息休息</string>
-    <string name="task_name_hint">请输入工作内容</string>
     <string name="label_work_time">工作时长</string>
     <string name="label_rest_time">休息时长</string>
+
+    <!-- 文本框默认值 -->
+    <string name="default_worktask">开始工作了</string>
+    <string name="default_work_time">25</string>
+    <string name="default_rest_time">5</string>
+
+    <!-- 按钮标题 -->
     <string name="button_begin_work"> 开始工作 </string>
     <string name="button_begin_rest"> 开始休息 </string>
     <string name="button_stop"> 终止任务 </string>
-    <string name="error_notask">请输入工作内容！</string>
-    <string name="menu">菜单</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="title_activity_menu">菜单</string>
-    <string name="back">返回</string>
+
+    <!-- Activity 标题 -->
+    <string name="main_title">番茄工作</string>
+    <string name="menu_title">功能</string>
+    <string name="setting_title">设置</string>
+    <string name="about_title">说明</string>
+
+    <!-- 菜单项 -->
     <string name="menuSetting">设置</string>
     <string name="menuReport">统计</string>
     <string name="menuAbout">说明</string>
-    <string name="title_activity_about">AboutActivity</string>
+
+    <!-- 设置项 -->
+    <string name="always_light">屏幕常亮</string>
+    <string name="always_light_des">使用番茄工作计时时，屏幕会保持常量</string>
+    <string name="cycle">循环</string>
+    <string name="cycle_des">开始工作后，将循环工作-休息计时</string>
 
 </resources>

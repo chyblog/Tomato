@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <CheckBoxPreference
+        android:key="always_light"
+        android:title="@string/always_light"
+        android:summary="@string/always_light_des"
+        />
+    <CheckBoxPreference
+        android:key="cycle"
+        android:title="@string/cycle"
+        android:summary="@string/cycle_des"
+		/>
+</PreferenceScreen>

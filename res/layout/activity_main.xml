@@ -5,42 +5,6 @@
     android:background="@drawable/wallpaper2"
     android:orientation="vertical" >
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="#1A94E6"
-        android:baselineAligned="false"
-        android:orientation="horizontal" 
-        android:gravity="center_vertical">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:text="@string/app_name"
-                android:textColor="#ffffff"
-                android:textSize="25sp"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="right" >
-
-            <Button
-                android:id="@+id/menuBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/menu_btn" />
-        </LinearLayout>
-    </LinearLayout>
-
     <TextView
         android:id="@+id/timeCounter"
         android:layout_width="fill_parent"
@@ -60,7 +24,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal|center_vertical"
         android:text="@string/init_task"
-        android:textColor="#2BD5D5"
+        android:textColor="#768EF0"
         android:textSize="30sp" />
 
     <EditText
@@ -70,7 +34,10 @@
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:gravity="center_horizontal|center_vertical"
+        android:text="@string/default_worktask"
         android:hint="@string/task_name_hint"
+        style="@style/textEditorStyle"
+        android:layout_marginBottom="6dp"
         android:maxLength="20"
         android:maxLines="1" />
 
@@ -83,13 +50,15 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_work_time" />
+            android:text="@string/label_work_time" 
+            style="@style/labelTextStyle"/>
 
         <EditText
             android:id="@+id/workTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="2"
+            style="@style/textEditorStyle"
             android:inputType="number"
             android:maxLength="2"
             android:text="@string/default_work_time" >
@@ -98,12 +67,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_rest_time" />
+            android:text="@string/label_rest_time" 
+            style="@style/labelTextStyle"/>
 
         <EditText
             android:id="@+id/restTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/textEditorStyle"
             android:ems="2"
             android:inputType="number"
             android:maxLength="2"
