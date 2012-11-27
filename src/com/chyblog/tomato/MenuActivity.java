@@ -8,9 +8,6 @@ import java.util.Map;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -30,11 +27,13 @@ public class MenuActivity extends ListActivity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		
+		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_menu);
+		this.getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.menu_title);
 
-		backToManBtn = (Button) findViewById(R.id.backToMain);
+		backToManBtn = (Button) findViewById(R.id.homeBtn);
 
 		List<Map<String, String>> menuItems = new ArrayList<Map<String, String>>();
 		Map<String, String> setting = new HashMap<String, String>();
@@ -69,22 +68,9 @@ public class MenuActivity extends ListActivity {
 			Intent intent = new Intent(MenuActivity.this, AboutActivity.class);
 			startActivity(intent);
 		}
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_menu, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case android.R.id.home:
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
+		if(id == MenuActivity.ITEM_SETTING) {
+			Intent intent = new Intent(MenuActivity.this, SettingActivity.class);
+			startActivity(intent);
 		}
-		return super.onOptionsItemSelected(item);
 	}
-
 }

@@ -6,12 +6,15 @@ import java.util.regex.Pattern;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
-import android.view.Menu;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -34,13 +37,18 @@ public class MainActivity extends Activity {
 	private Button restbeginBtn = null;
 	private Button stopBtn = null;
 	private Button menuBtn = null;
+	private WakeLock wakeLock = null;
+	private Handler handler = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
+		requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
+		this.getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE,
+				R.layout.main_title);
+
 		workbeginBtn = (Button) findViewById(R.id.workbeginBtn);
 		restbeginBtn = (Button) findViewById(R.id.restbeginBtn);
 		stopBtn = (Button) findViewById(R.id.stopBtn);
@@ -50,78 +58,32 @@ public class MainActivity extends Activity {
 		workTask = (EditText) findViewById(R.id.workTask);
 		workTime = (EditText) findViewById(R.id.workTime);
 		restTime = (EditText) findViewById(R.id.restTime);
-		final Handler handler = new TimeCounterHandler();
+		wakeLock = ((PowerManager) this
+				.getSystemService(MainActivity.POWER_SERVICE)).newWakeLock(
+				PowerManager.SCREEN_BRIGHT_WAKE_LOCK
+						| PowerManager.ON_AFTER_RELEASE, "MainActivity");
+		handler = new TimeCounterHandler();
 
 		workbeginBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				Pattern p = Pattern.compile("//s*|\t|\r|\n");
-				String strWorkTask = workTask.getText().toString();
-				Matcher m = p.matcher(strWorkTask);
-				strWorkTask = m.replaceAll(" ");
-				if("".equals(strWorkTask)) {
-					Dialog dialog = new Dialog(MainActivity.this);
-					dialog.setTitle(getString(R.string.error_notask));
-					dialog.show();
-					return;
-				}
-				workTaskView.setText(strWorkTask);
-				workTask.setVisibility(View.INVISIBLE);
-				int iWorkTime = 0;
-				String strWorkTime = workTime.getText().toString();
-				if (!"".equals(strWorkTime)) {
-					iWorkTime = Integer.parseInt(strWorkTime);
-				}
-				worktimeCounter = new TimeCounter(iWorkTime, 0,
-						TimeCounter.WORK);
-				worktimer = new CountDownTimer((iWorkTime + 1) * 60 * 1000, 997) {
-
-					@Override
-					public void onTick(long millisUntilFinished) {
-						Message message = new Message();
-						message.arg1 = TimeCounter.WORK;
-						handler.sendMessage(message);
-					}
-
-					@Override
-					public void onFinish() {
-
-					}
-				}.start();
+				beginWorkTask();
 			}
+
+			
 		});
 
 		restbeginBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				workTask.setVisibility(View.INVISIBLE);
-				workTaskView.setText(getString(R.string.rest_tip));
-				int iRestTime = 0;
-				String strRestTime = restTime.getText().toString();
-				if (!"".equals(strRestTime)) {
-					iRestTime = Integer.parseInt(strRestTime);
-				}
-				resttimeCounter = new TimeCounter(iRestTime, 0,
-						TimeCounter.REST);
-				resttimer = new CountDownTimer((iRestTime + 1) * 60 * 1000, 997) {
-
-					@Override
-					public void onTick(long millisUntilFinished) {
-						Message message = new Message();
-						message.arg1 = TimeCounter.REST;
-						handler.sendMessage(message);
-					}
-
-					@Override
-					public void onFinish() {
-
-					}
-				}.start();
+				beginRest();
 			}
-		});
 
+			
+		});
+		
 		stopBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -139,21 +101,96 @@ public class MainActivity extends Activity {
 				stopBtn.setEnabled(false);
 			}
 		});
-		
+
 		menuBtn.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View view) {
-				Intent intent = new Intent(MainActivity.this, MenuActivity.class);
+				Intent intent = new Intent(MainActivity.this,
+						MenuActivity.class);
 				startActivity(intent);
 			}
 		});
 	}
+	
+	private void beginWorkTask() {
+		Pattern p = Pattern.compile("//s*|\t|\r|\n");
+		String strWorkTask = workTask.getText().toString();
+		Matcher m = p.matcher(strWorkTask);
+		strWorkTask = m.replaceAll(" ");
+		if ("".equals(strWorkTask)) {
+			Dialog dialog = new Dialog(MainActivity.this);
+			dialog.setTitle(getString(R.string.error_notask));
+			dialog.show();
+			return;
+		}
+		workTaskView.setText(strWorkTask);
+		workTask.setVisibility(View.INVISIBLE);
+		int iWorkTime = 0;
+		String strWorkTime = workTime.getText().toString();
+		if (!"".equals(strWorkTime)) {
+			iWorkTime = Integer.parseInt(strWorkTime);
+		}
+		worktimeCounter = new TimeCounter(iWorkTime, 0,
+				TimeCounter.WORK);
+		worktimer = new CountDownTimer((iWorkTime + 1) * 60 * 1000, 997) {
+
+			@Override
+			public void onTick(long millisUntilFinished) {
+				Message message = new Message();
+				message.arg1 = TimeCounter.WORK;
+				handler.sendMessage(message);
+			}
+
+			@Override
+			public void onFinish() {
+
+			}
+		}.start();
+	}
+	
+	private void beginRest() {
+		workTask.setVisibility(View.INVISIBLE);
+		workTaskView.setText(getString(R.string.rest_tip));
+		int iRestTime = 0;
+		String strRestTime = restTime.getText().toString();
+		if (!"".equals(strRestTime)) {
+			iRestTime = Integer.parseInt(strRestTime);
+		}
+		resttimeCounter = new TimeCounter(iRestTime, 0,
+				TimeCounter.REST);
+		resttimer = new CountDownTimer((iRestTime + 1) * 60 * 1000, 997) {
+
+			@Override
+			public void onTick(long millisUntilFinished) {
+				Message message = new Message();
+				message.arg1 = TimeCounter.REST;
+				handler.sendMessage(message);
+			}
+
+			@Override
+			public void onFinish() {
+
+			}
+		}.start();
+	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_main, menu);
-		return true;
+	protected void onResume() {
+		super.onResume();
+		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+		boolean alywas_light_flag = preference.getBoolean("always_light", false);
+		if(null != wakeLock && alywas_light_flag) {
+			wakeLock.acquire();
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if(null != wakeLock && wakeLock.isHeld() ) {
+			wakeLock.release();
+		}
 	}
 
 	private class TimeCounterHandler extends Handler {
@@ -233,13 +270,22 @@ public class MainActivity extends Activity {
 						R.raw.ring);
 				mediaPlayer.start();
 				workTask.setVisibility(View.VISIBLE);
+				SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+				boolean cycle_flag = preference.getBoolean("cycle", false);
 				if (this.type == TimeCounter.WORK) {
 					worktimer.cancel();
 					workbeginBtn.setEnabled(true);
+					if(cycle_flag) {
+						beginRest();
+					}
+					
 				}
 				if (this.type == TimeCounter.REST) {
 					resttimer.cancel();
 					restbeginBtn.setEnabled(true);
+					if(cycle_flag) {
+						beginWorkTask();
+					}
 				}
 				return;
 			}
