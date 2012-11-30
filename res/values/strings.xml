@@ -5,6 +5,8 @@
     <!-- 提示信息 -->
     <string name="task_name_hint">请输入工作内容</string>
     <string name="error_notask">请输入工作内容！</string>
+    <string name="work_time_more_than_0">工作时间必须大于0！</string>
+    <string name="rest_time_more_than_0">休息时间必须大于0！</string>
 
     <!-- 静态显示信息 -->
     <string name="init_time">00:00</string>
@@ -21,23 +23,29 @@
     <!-- 按钮标题 -->
     <string name="button_begin_work"> 开始工作 </string>
     <string name="button_begin_rest"> 开始休息 </string>
-    <string name="button_stop"> 终止任务 </string>
+    <string name="button_stop"> 提前完成 </string>
 
     <!-- Activity 标题 -->
     <string name="main_title">番茄工作</string>
     <string name="menu_title">功能</string>
     <string name="setting_title">设置</string>
     <string name="about_title">说明</string>
+    <string name="contact_title">作者</string>
 
     <!-- 菜单项 -->
     <string name="menuSetting">设置</string>
     <string name="menuReport">统计</string>
     <string name="menuAbout">说明</string>
+    <string name="menuContact">作者</string>
 
     <!-- 设置项 -->
     <string name="always_light">屏幕常亮</string>
     <string name="always_light_des">使用番茄工作计时时，屏幕会保持常量</string>
     <string name="cycle">循环</string>
     <string name="cycle_des">开始工作后，将循环工作-休息计时</string>
+    <string name="ring">铃声提示</string>
+    <string name="ring_des">时间结束时，使用铃声提示</string>
+    <string name="vibrate">震动提示</string>
+    <string name="vibrate_des">时间结束时，使用震动提示</string>
 
 </resources>

@@ -10,4 +10,14 @@
         android:title="@string/cycle"
         android:summary="@string/cycle_des"
 		/>
+    <CheckBoxPreference
+        android:key="ring"
+        android:title="@string/ring"
+        android:summary="@string/ring_des"
+		/>
+    <CheckBoxPreference
+        android:key="vibrate"
+        android:title="@string/vibrate"
+        android:summary="@string/vibrate_des"
+		/>
 </PreferenceScreen>

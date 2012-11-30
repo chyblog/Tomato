@@ -40,6 +40,15 @@
                 android:value="com.chyblog.tomato.MenuActivity" />
         </activity>
         
+        <activity
+            android:name=".ContactActivity"
+            android:theme="@style/titileStyle"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.chyblog.tomato.MenuActivity" />
+        </activity>
+        
         <activity android:name=".SettingActivity" 
             android:theme="@style/titileStyle"
             android:screenOrientation="portrait">
@@ -49,4 +58,5 @@
         </activity>
     </application>
 	<uses-permission android:name="android.permission.WAKE_LOCK"/>
+	<uses-permission android:name="android.permission.VIBRATE"/>
 </manifest>

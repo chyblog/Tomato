@@ -4,9 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -14,13 +14,19 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.chyblog.tomato.util.TispToastFactory;
 
 public class MainActivity extends Activity {
 
@@ -63,6 +69,11 @@ public class MainActivity extends Activity {
 				PowerManager.SCREEN_BRIGHT_WAKE_LOCK
 						| PowerManager.ON_AFTER_RELEASE, "MainActivity");
 		handler = new TimeCounterHandler();
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(MainActivity.this);
+		
+		workTime.setText(preferences.getString("workTaskTime", "25"));
+		restTime.setText(preferences.getString("restTime", "5"));
 
 		workbeginBtn.setOnClickListener(new OnClickListener() {
 
@@ -71,7 +82,6 @@ public class MainActivity extends Activity {
 				beginWorkTask();
 			}
 
-			
 		});
 
 		restbeginBtn.setOnClickListener(new OnClickListener() {
@@ -81,9 +91,8 @@ public class MainActivity extends Activity {
 				beginRest();
 			}
 
-			
 		});
-		
+
 		stopBtn.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -111,28 +120,60 @@ public class MainActivity extends Activity {
 				startActivity(intent);
 			}
 		});
+
+		workTime.setOnKeyListener(new OnKeyListener() {
+			
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				SharedPreferences preferences = PreferenceManager
+						.getDefaultSharedPreferences(MainActivity.this);
+				Editor editor = preferences.edit();
+				editor.putString("workTaskTime", workTime.getText()
+						.toString());
+				editor.commit();
+				return false;
+			}
+		});
+		
+		restTime.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				SharedPreferences preferences = PreferenceManager
+						.getDefaultSharedPreferences(MainActivity.this);
+				Editor editor = preferences.edit();
+				editor.putString("restTime", restTime.getText()
+						.toString());
+				editor.commit();
+				return false;
+			}
+		});
 	}
-	
+
 	private void beginWorkTask() {
 		Pattern p = Pattern.compile("//s*|\t|\r|\n");
 		String strWorkTask = workTask.getText().toString();
 		Matcher m = p.matcher(strWorkTask);
 		strWorkTask = m.replaceAll(" ");
-		if ("".equals(strWorkTask)) {
-			Dialog dialog = new Dialog(MainActivity.this);
-			dialog.setTitle(getString(R.string.error_notask));
-			dialog.show();
-			return;
-		}
-		workTaskView.setText(strWorkTask);
-		workTask.setVisibility(View.INVISIBLE);
 		int iWorkTime = 0;
 		String strWorkTime = workTime.getText().toString();
 		if (!"".equals(strWorkTime)) {
 			iWorkTime = Integer.parseInt(strWorkTime);
 		}
-		worktimeCounter = new TimeCounter(iWorkTime, 0,
-				TimeCounter.WORK);
+		if ("".equals(strWorkTask)) {
+			Toast toast = TispToastFactory.getToast(MainActivity.this, getString(R.string.error_notask));
+			toast.show();
+			workTask.requestFocus();
+			return;
+		}
+		if (iWorkTime <= 0) {
+			Toast toast = TispToastFactory.getToast(MainActivity.this, getString(R.string.work_time_more_than_0));
+			toast.show();
+			workTime.requestFocus();
+			return;
+		}
+		workTaskView.setText(strWorkTask);
+		workTask.setVisibility(View.INVISIBLE);
+		worktimeCounter = new TimeCounter(iWorkTime, 0, TimeCounter.WORK);
 		worktimer = new CountDownTimer((iWorkTime + 1) * 60 * 1000, 997) {
 
 			@Override
@@ -148,17 +189,22 @@ public class MainActivity extends Activity {
 			}
 		}.start();
 	}
-	
+
 	private void beginRest() {
-		workTask.setVisibility(View.INVISIBLE);
-		workTaskView.setText(getString(R.string.rest_tip));
 		int iRestTime = 0;
 		String strRestTime = restTime.getText().toString();
 		if (!"".equals(strRestTime)) {
 			iRestTime = Integer.parseInt(strRestTime);
 		}
-		resttimeCounter = new TimeCounter(iRestTime, 0,
-				TimeCounter.REST);
+		if (iRestTime <= 0) {
+			Toast toast = TispToastFactory.getToast(MainActivity.this, getString(R.string.rest_time_more_than_0));
+			toast.show();
+			restTime.requestFocus();
+			return;
+		}
+		workTaskView.setText(getString(R.string.rest_tip));
+		workTask.setVisibility(View.INVISIBLE);
+		resttimeCounter = new TimeCounter(iRestTime, 0, TimeCounter.REST);
 		resttimer = new CountDownTimer((iRestTime + 1) * 60 * 1000, 997) {
 
 			@Override
@@ -178,9 +224,11 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-		boolean alywas_light_flag = preference.getBoolean("always_light", false);
-		if(null != wakeLock && alywas_light_flag) {
+		SharedPreferences preference = PreferenceManager
+				.getDefaultSharedPreferences(MainActivity.this);
+		boolean alywas_light_flag = preference
+				.getBoolean("always_light", false);
+		if (null != wakeLock && alywas_light_flag) {
 			wakeLock.acquire();
 		}
 	}
@@ -188,7 +236,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if(null != wakeLock && wakeLock.isHeld() ) {
+		if (null != wakeLock && wakeLock.isHeld()) {
 			wakeLock.release();
 		}
 	}
@@ -266,27 +314,38 @@ public class MainActivity extends Activity {
 		 */
 		private void getNextSecond() {
 			if (this.minute == 0 && this.second == 0) {
-				MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.this,
-						R.raw.ring);
-				mediaPlayer.start();
+				SharedPreferences preferences = PreferenceManager
+						.getDefaultSharedPreferences(MainActivity.this);
+				if(preferences.getBoolean("vibrate", false)) {
+					Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+					long[] pattern = { 800, 2000};
+					vibrator.vibrate(pattern,-1);
+				}
+				if(preferences.getBoolean("ring", false)) {
+					MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.this,
+							R.raw.ring);
+					mediaPlayer.start();
+				}
 				workTask.setVisibility(View.VISIBLE);
-				SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+				SharedPreferences preference = PreferenceManager
+						.getDefaultSharedPreferences(MainActivity.this);
 				boolean cycle_flag = preference.getBoolean("cycle", false);
 				if (this.type == TimeCounter.WORK) {
 					worktimer.cancel();
-					workbeginBtn.setEnabled(true);
-					if(cycle_flag) {
+					if (cycle_flag) {
 						beginRest();
 					}
-					
+
 				}
 				if (this.type == TimeCounter.REST) {
 					resttimer.cancel();
-					restbeginBtn.setEnabled(true);
-					if(cycle_flag) {
+					if (cycle_flag) {
 						beginWorkTask();
 					}
 				}
+				workbeginBtn.setEnabled(true);
+				restbeginBtn.setEnabled(true);
+				stopBtn.setEnabled(false);
 				return;
 			}
 			--this.second;

@@ -22,6 +22,8 @@ public class MenuActivity extends ListActivity {
 	private static final long ITEM_REPORT = 1;
 	
 	private static final long ITEM_ABOUT = 2;
+	
+	private static final long ITEM_CONTACT = 3;
 
 	private Button backToManBtn = null;
 
@@ -42,9 +44,12 @@ public class MenuActivity extends ListActivity {
 		report.put("menuItem", getString(R.string.menuReport));
 		Map<String, String> about = new HashMap<String, String>();
 		about.put("menuItem", getString(R.string.menuAbout));
+		Map<String, String> contact = new HashMap<String, String>();
+		contact.put("menuItem", getString(R.string.menuContact));
 		menuItems.add(setting);
 		menuItems.add(report);
 		menuItems.add(about);
+		menuItems.add(contact);
 
 		SimpleAdapter menuAdapter = new SimpleAdapter(MenuActivity.this, menuItems,
 				R.layout.menu_list, new String[] { "menuItem" },
@@ -70,6 +75,10 @@ public class MenuActivity extends ListActivity {
 		}
 		if(id == MenuActivity.ITEM_SETTING) {
 			Intent intent = new Intent(MenuActivity.this, SettingActivity.class);
+			startActivity(intent);
+		}
+		if(id == MenuActivity.ITEM_CONTACT) {
+			Intent intent = new Intent(MenuActivity.this, ContactActivity.class);
 			startActivity(intent);
 		}
 	}
