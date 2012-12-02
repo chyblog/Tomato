@@ -19,11 +19,11 @@ public class MenuActivity extends ListActivity {
 	
 	private static final long ITEM_SETTING = 0;
 	
-	private static final long ITEM_REPORT = 1;
+	private static final long ITEM_REPORT = 10;
 	
-	private static final long ITEM_ABOUT = 2;
+	private static final long ITEM_ABOUT = 1;
 	
-	private static final long ITEM_CONTACT = 3;
+	private static final long ITEM_CONTACT = 2;
 
 	private Button backToManBtn = null;
 
@@ -47,7 +47,7 @@ public class MenuActivity extends ListActivity {
 		Map<String, String> contact = new HashMap<String, String>();
 		contact.put("menuItem", getString(R.string.menuContact));
 		menuItems.add(setting);
-		menuItems.add(report);
+//		menuItems.add(report); 暂未开发统计
 		menuItems.add(about);
 		menuItems.add(contact);
 

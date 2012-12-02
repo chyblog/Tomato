@@ -23,8 +23,13 @@ import android.view.View.OnKeyListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import cn.domob.android.ads.DomobActivity;
+import cn.domob.android.ads.DomobAdView;
+import cn.domob.android.ads.DomobSplashAd;
 
 import com.chyblog.tomato.util.TispToastFactory;
 
@@ -45,6 +50,8 @@ public class MainActivity extends Activity {
 	private Button menuBtn = null;
 	private WakeLock wakeLock = null;
 	private Handler handler = null;
+	private LinearLayout mAdContainer = null;
+	private DomobAdView mAdView300x50 = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -64,6 +71,11 @@ public class MainActivity extends Activity {
 		workTask = (EditText) findViewById(R.id.workTask);
 		workTime = (EditText) findViewById(R.id.workTime);
 		restTime = (EditText) findViewById(R.id.restTime);
+		mAdContainer = (LinearLayout) findViewById(R.id.domoAdv);
+		mAdView300x50 = new DomobAdView(this, "填写多盟public_key", DomobAdView.INLINE_SIZE_320X50);
+		mAdContainer.addView(mAdView300x50);
+		
+		
 		wakeLock = ((PowerManager) this
 				.getSystemService(MainActivity.POWER_SERVICE)).newWakeLock(
 				PowerManager.SCREEN_BRIGHT_WAKE_LOCK
@@ -257,38 +269,33 @@ public class MainActivity extends Activity {
 	}
 
 	/**
-	 * 倒计时工具
-	 * 
+	 * ����跺伐��	 * 
 	 * @author chenyang
 	 * 
 	 */
 	private class TimeCounter {
 
-		/** 类型：工作 */
+		/** 绫诲�锛�伐浣�*/
 		public static final int WORK = 1;
 
-		/** 类型：休息 */
+		/** 绫诲�锛����*/
 		public static final int REST = 2;
 
-		/** 倒计时分钟 */
+		/** ����跺���*/
 		private int minute;
 
-		/** 倒计时秒钟 */
+		/** ����剁���*/
 		private int second;
 
-		/** 倒计时类型（工作or休息） */
+		/** ����剁被���宸ヤ�or浼��锛�*/
 		private int type;
 
 		/**
-		 * 构造函数，初始化倒计时时间
-		 * 
+		 * ����芥�锛��濮������舵���		 * 
 		 * @param minute
-		 *            倒计时分钟
-		 * @param second
-		 *            倒计时秒钟
-		 * @param type
-		 *            倒计时类型
-		 */
+		 *            ����跺���		 * @param second
+		 *            ����剁���		 * @param type
+		 *            ����剁被��		 */
 		public TimeCounter(int minute, int second, int type) {
 			this.minute = minute;
 			this.second = second;
@@ -310,7 +317,7 @@ public class MainActivity extends Activity {
 		}
 
 		/**
-		 * 设置下一秒钟的分、秒
+		 * 璁剧疆涓��绉��������
 		 */
 		private void getNextSecond() {
 			if (this.minute == 0 && this.second == 0) {
@@ -356,10 +363,8 @@ public class MainActivity extends Activity {
 		}
 
 		/**
-		 * 获取下一秒的显示值
-		 * 
-		 * @return 下一秒的显示值
-		 */
+		 * �峰�涓��绉���剧ず��		 * 
+		 * @return 涓��绉���剧ず��		 */
 		public String getNextSecondTime() {
 
 			getNextSecond();

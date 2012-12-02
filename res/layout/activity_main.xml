@@ -119,5 +119,11 @@
             android:textSize="20sp"
             android:layout_margin="5dp"/>
     </LinearLayout>
+    <LinearLayout 
+        android:id="@+id/domoAdv"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center|bottom"
+        ></LinearLayout>
 
 </LinearLayout>
