@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" 
     package="com.chyblog.tomato"
     android:versionCode="1"
     android:versionName="1.0" >
@@ -47,6 +47,14 @@
         </activity>
         <activity
             android:name=".SettingActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/titileStyle" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.chyblog.tomato.MenuActivity" />
+        </activity>
+        <activity
+            android:name=".ReportActivity"
             android:screenOrientation="portrait"
             android:theme="@style/titileStyle" >
             <meta-data

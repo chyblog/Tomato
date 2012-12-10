@@ -14,6 +14,7 @@
     <string name="rest_tip">休息休息</string>
     <string name="label_work_time">工作时长</string>
     <string name="label_rest_time">休息时长</string>
+    <string name="report_text">总共完成了{0}个番茄</string>
 
     <!-- 文本框默认值 -->
     <string name="default_worktask">开始工作了</string>
@@ -31,6 +32,7 @@
     <string name="setting_title">设置</string>
     <string name="about_title">说明</string>
     <string name="contact_title">作者</string>
+    <string name="report_title">统计</string>
 
     <!-- 菜单项 -->
     <string name="menuSetting">设置</string>

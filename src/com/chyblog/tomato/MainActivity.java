@@ -4,9 +4,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -26,12 +28,11 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import cn.domob.android.ads.DomobActivity;
 import cn.domob.android.ads.DomobAdView;
-import cn.domob.android.ads.DomobSplashAd;
 
+import com.chyblog.tomato.entity.TomatoReaderContract;
 import com.chyblog.tomato.util.TispToastFactory;
+import com.chyblog.tomato.util.TomatoDbHelper;
 
 public class MainActivity extends Activity {
 
@@ -52,6 +53,8 @@ public class MainActivity extends Activity {
 	private Handler handler = null;
 	private LinearLayout mAdContainer = null;
 	private DomobAdView mAdView300x50 = null;
+	private SQLiteDatabase db = null;
+	String strWorkTask = "";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -72,10 +75,10 @@ public class MainActivity extends Activity {
 		workTime = (EditText) findViewById(R.id.workTime);
 		restTime = (EditText) findViewById(R.id.restTime);
 		mAdContainer = (LinearLayout) findViewById(R.id.domoAdv);
-		mAdView300x50 = new DomobAdView(this, "填写多盟public_key", DomobAdView.INLINE_SIZE_320X50);
+		mAdView300x50 = new DomobAdView(this, "56OJyM1ouMGoaSnvCK",
+				DomobAdView.INLINE_SIZE_320X50);
+
 		mAdContainer.addView(mAdView300x50);
-		
-		
 		wakeLock = ((PowerManager) this
 				.getSystemService(MainActivity.POWER_SERVICE)).newWakeLock(
 				PowerManager.SCREEN_BRIGHT_WAKE_LOCK
@@ -83,7 +86,7 @@ public class MainActivity extends Activity {
 		handler = new TimeCounterHandler();
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(MainActivity.this);
-		
+
 		workTime.setText(preferences.getString("workTaskTime", "25"));
 		restTime.setText(preferences.getString("restTime", "5"));
 
@@ -134,27 +137,25 @@ public class MainActivity extends Activity {
 		});
 
 		workTime.setOnKeyListener(new OnKeyListener() {
-			
+
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				SharedPreferences preferences = PreferenceManager
 						.getDefaultSharedPreferences(MainActivity.this);
 				Editor editor = preferences.edit();
-				editor.putString("workTaskTime", workTime.getText()
-						.toString());
+				editor.putString("workTaskTime", workTime.getText().toString());
 				editor.commit();
 				return false;
 			}
 		});
-		
+
 		restTime.setOnKeyListener(new OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				SharedPreferences preferences = PreferenceManager
 						.getDefaultSharedPreferences(MainActivity.this);
 				Editor editor = preferences.edit();
-				editor.putString("restTime", restTime.getText()
-						.toString());
+				editor.putString("restTime", restTime.getText().toString());
 				editor.commit();
 				return false;
 			}
@@ -163,7 +164,7 @@ public class MainActivity extends Activity {
 
 	private void beginWorkTask() {
 		Pattern p = Pattern.compile("//s*|\t|\r|\n");
-		String strWorkTask = workTask.getText().toString();
+		strWorkTask = workTask.getText().toString();
 		Matcher m = p.matcher(strWorkTask);
 		strWorkTask = m.replaceAll(" ");
 		int iWorkTime = 0;
@@ -172,13 +173,15 @@ public class MainActivity extends Activity {
 			iWorkTime = Integer.parseInt(strWorkTime);
 		}
 		if ("".equals(strWorkTask)) {
-			Toast toast = TispToastFactory.getToast(MainActivity.this, getString(R.string.error_notask));
+			Toast toast = TispToastFactory.getToast(MainActivity.this,
+					getString(R.string.error_notask));
 			toast.show();
 			workTask.requestFocus();
 			return;
 		}
 		if (iWorkTime <= 0) {
-			Toast toast = TispToastFactory.getToast(MainActivity.this, getString(R.string.work_time_more_than_0));
+			Toast toast = TispToastFactory.getToast(MainActivity.this,
+					getString(R.string.work_time_more_than_0));
 			toast.show();
 			workTime.requestFocus();
 			return;
@@ -209,7 +212,8 @@ public class MainActivity extends Activity {
 			iRestTime = Integer.parseInt(strRestTime);
 		}
 		if (iRestTime <= 0) {
-			Toast toast = TispToastFactory.getToast(MainActivity.this, getString(R.string.rest_time_more_than_0));
+			Toast toast = TispToastFactory.getToast(MainActivity.this,
+					getString(R.string.rest_time_more_than_0));
 			toast.show();
 			restTime.requestFocus();
 			return;
@@ -269,33 +273,38 @@ public class MainActivity extends Activity {
 	}
 
 	/**
-	 * ����跺伐��	 * 
+	 * 倒计时工具
+	 * 
 	 * @author chenyang
 	 * 
 	 */
 	private class TimeCounter {
 
-		/** 绫诲�锛�伐浣�*/
+		/** 类型：工作 */
 		public static final int WORK = 1;
 
-		/** 绫诲�锛����*/
+		/** 类型：休息 */
 		public static final int REST = 2;
 
-		/** ����跺���*/
+		/** 倒计时分钟 */
 		private int minute;
 
-		/** ����剁���*/
+		/** 倒计时秒钟 */
 		private int second;
 
-		/** ����剁被���宸ヤ�or浼��锛�*/
+		/** 倒计时类型（工作or休息） */
 		private int type;
 
 		/**
-		 * ����芥�锛��濮������舵���		 * 
+		 * 构造函数，初始化倒计时时间
+		 * 
 		 * @param minute
-		 *            ����跺���		 * @param second
-		 *            ����剁���		 * @param type
-		 *            ����剁被��		 */
+		 *            倒计时分钟
+		 * @param second
+		 *            倒计时秒钟
+		 * @param type
+		 *            倒计时类型
+		 */
 		public TimeCounter(int minute, int second, int type) {
 			this.minute = minute;
 			this.second = second;
@@ -317,20 +326,20 @@ public class MainActivity extends Activity {
 		}
 
 		/**
-		 * 璁剧疆涓��绉��������
+		 * 设置下一秒钟的分、秒
 		 */
 		private void getNextSecond() {
 			if (this.minute == 0 && this.second == 0) {
 				SharedPreferences preferences = PreferenceManager
 						.getDefaultSharedPreferences(MainActivity.this);
-				if(preferences.getBoolean("vibrate", false)) {
+				if (preferences.getBoolean("vibrate", false)) {
 					Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-					long[] pattern = { 800, 2000};
-					vibrator.vibrate(pattern,-1);
+					long[] pattern = { 800, 2000 };
+					vibrator.vibrate(pattern, -1);
 				}
-				if(preferences.getBoolean("ring", false)) {
-					MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.this,
-							R.raw.ring);
+				if (preferences.getBoolean("ring", false)) {
+					MediaPlayer mediaPlayer = MediaPlayer.create(
+							MainActivity.this, R.raw.ring);
 					mediaPlayer.start();
 				}
 				workTask.setVisibility(View.VISIBLE);
@@ -339,6 +348,14 @@ public class MainActivity extends Activity {
 				boolean cycle_flag = preference.getBoolean("cycle", false);
 				if (this.type == TimeCounter.WORK) {
 					worktimer.cancel();
+					TomatoDbHelper workTaskDbHelper = new TomatoDbHelper(MainActivity.this);
+					db = workTaskDbHelper.getWritableDatabase();
+					ContentValues contentValues = new ContentValues();
+					contentValues.put(
+							TomatoReaderContract.WorkTaskEntry.CLUMN_NAME_TASK_NAME,
+							strWorkTask);
+					db.insert(TomatoReaderContract.WorkTaskEntry.TABLE_NAME, "", contentValues);
+					db.close();
 					if (cycle_flag) {
 						beginRest();
 					}
@@ -363,8 +380,10 @@ public class MainActivity extends Activity {
 		}
 
 		/**
-		 * �峰�涓��绉���剧ず��		 * 
-		 * @return 涓��绉���剧ず��		 */
+		 * 获取下一秒的显示值
+		 * 
+		 * @return 下一秒的显示值
+		 */
 		public String getNextSecondTime() {
 
 			getNextSecond();
